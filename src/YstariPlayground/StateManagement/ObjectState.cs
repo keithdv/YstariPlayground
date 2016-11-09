@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Ystari.Serialization;
 using System;
 
-namespace Ystari.ObjectState
+namespace Ystari.StateManagement
 {
     public interface IPropertyState : ISerializable
     {
