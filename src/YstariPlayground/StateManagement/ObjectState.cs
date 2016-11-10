@@ -8,6 +8,7 @@ namespace Ystari.StateManagement
 {
     public interface IPropertyState : ISerializable
     {
+        string Name { get; }
         object GetPropertyValue();
         void SetValue(object value);
         bool HasChanged { get; set; }
@@ -19,8 +20,9 @@ namespace Ystari.StateManagement
         void SetValue(T value);
     }
 
-    public class PropertyState<T> : IPropertyState<T>
+    public class PropertyState<T> : SerializableObject, IPropertyState<T>
     {
+        public string Name { get; set; }
         private T Value;
         public bool HasChanged { get; set; }
 
@@ -46,16 +48,20 @@ namespace Ystari.StateManagement
             Value = value;
         }
 
-        void ISerializable.GetState(SerializationInfo target)
+        protected override void GetState(SerializationInfo target)
         {
+            target.AddString("n", Name);
             target.AddValue("v", Value);
-            target.AddValue("c", HasChanged);
+            target.AddBool("c", HasChanged);
+            base.GetState(target);
         }
 
-        void ISerializable.SetState(SerializationInfo source)
+        protected override void SetState(SerializationInfo source)
         {
+            Name = source.GetString("n");
             Value = source.GetObject<T>("v");
             HasChanged = source.GetBool("c");
+            base.SetState(source);
         }
     }
 
@@ -65,22 +71,44 @@ namespace Ystari.StateManagement
         bool HasChanged { get; }
     }
 
-    public class ObjectState : IObjectState
+    public class ObjectState : SerializableObject, IObjectState
     {
-        int IObjectState.GraphId { get; set; }
-
-        public bool HasChanged { get; private set; }
-
-        public IEnumerable<IPropertyState> Properties { get; set; }
-
-        void ISerializable.GetState(SerializationInfo target)
+        public void SetProperty(string propertyName, object value)
         {
             throw new NotImplementedException();
         }
 
-        void ISerializable.SetState(SerializationInfo source)
+        int IObjectState.GraphId { get; set; }
+
+        public bool HasChanged
         {
-            throw new NotImplementedException();
+            get
+            {
+                var hasChanged = Properties.FirstOrDefault(_ => _.HasChanged);
+                return (hasChanged != null);
+            }
+        }
+
+        public IEnumerable<IPropertyState> Properties { get; set; }
+
+        protected override void GetState(SerializationInfo target)
+        {
+            target.AddInt32("gid", ((IObjectState)this).GraphId);
+            foreach (var item in Properties)
+                item.GetState(target);
+            base.GetState(target);
+        }
+
+        protected override void SetState(SerializationInfo source)
+        {
+            ((IObjectState)this).GraphId = source.GetInt32("gid");
+            foreach (var item in source.Where(_ => _.Key != "gid"))
+            {
+                var p = new PropertyState<object>(); //TODO: create correct generic type
+                //((ISerializable)p).SetState(item);
+                //Properties.Append(new P)
+            }
+            base.SetState(source);
         }
 
         public IEnumerable<IObjectState> List { get; set; }
@@ -93,6 +121,11 @@ namespace Ystari.StateManagement
         IEnumerator IEnumerable.GetEnumerator()
         {
             return List.GetEnumerator();
+        }
+
+        internal T GetProperty<T>(string name)
+        {
+            return default(T); //TODO: implement this
         }
     }
 }

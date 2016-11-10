@@ -4,17 +4,16 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Ystari.Serialization;
 using Ystari.StateManagement;
 
 namespace Ystari
 {
-    public interface IEditableObject : IDomainObject, INotifyPropertyChanged, INotifyPropertyChanging, INotifyDataErrorInfo
+    public interface IEditableObject : IBindableObject, INotifyDataErrorInfo
     { }
 
-    public class EditableObject : IEditableObject
+    public class EditableObject : BindableObject, IEditableObject
     {
-        int IDomainObject.GraphId { get; set; }
-
         public bool HasErrors
         {
             get
@@ -26,8 +25,6 @@ namespace Ystari
         protected IObjectState ObjectState { get; private set; }
 
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event PropertyChangingEventHandler PropertyChanging;
 
         public IEnumerable GetErrors(string propertyName)
         {

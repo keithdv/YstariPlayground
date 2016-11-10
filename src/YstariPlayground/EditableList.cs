@@ -10,9 +10,9 @@ namespace Ystari
         where T : IEditableObject
     { }
 
-    public class EditableList<T> : ObservableCollection<T>, IEditableList<T>
-        where T : IEditableObject
-    {
-        int IDomainObject.GraphId { get; set; }
-    }
+    //public class EditableList<T> : ObservableCollection<T>, IEditableList<T>
+    //    where T : IEditableObject
+    //{
+    //    int IDomainObject.GraphId { get; set; }
+    //}
 }
