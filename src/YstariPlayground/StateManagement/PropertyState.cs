@@ -3,7 +3,7 @@ namespace Ystari.StateManagement
 {
     public interface IPropertyState
     {
-        string Name { get; }
+        string Key { get; }
         object GetPropertyValue();
         void SetPropertyValue(object value);
         bool HasChanged { get; }
@@ -16,9 +16,12 @@ namespace Ystari.StateManagement
 
     public class PropertyState<T> : IPropertyState<T>
     {
-        public string Name { get; set; }
+        [Newtonsoft.Json.JsonRequired]
+        public string Key { get; set; }
 
+        [Newtonsoft.Json.JsonRequired]
         private T _value = default(T);
+        [Newtonsoft.Json.JsonIgnore]
         public T Value
         {
             get { return _value; }
@@ -30,7 +33,8 @@ namespace Ystari.StateManagement
             }
         }
 
-        public bool HasChanged { get; internal set; }
+        [Newtonsoft.Json.JsonRequired]
+        public bool HasChanged { get; set; }
 
         object IPropertyState.GetPropertyValue()
         {

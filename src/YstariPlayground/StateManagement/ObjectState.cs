@@ -7,14 +7,21 @@ namespace Ystari.StateManagement
 {
     public interface IObjectState : IEnumerable<IPropertyState>
     {
-        int GraphId { get; set; }
+        int GraphId { get; }
         bool HasChanged { get; }
     }
 
     public class ObjectState : IObjectState
     {
+        public ObjectState()
+        {
+            List = new List<IPropertyState>();
+        }
+
+        [Newtonsoft.Json.JsonRequired]
         public int GraphId { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public bool HasChanged
         {
             get
@@ -38,7 +45,7 @@ namespace Ystari.StateManagement
 
         public T GetProperty<T>(string name)
         {
-            var property = List.FirstOrDefault(_ => _.Name == name) as IPropertyState<T>;
+            var property = List.FirstOrDefault(_ => _.Key == name) as IPropertyState<T>;
             if (property != null)
                 return property.Value;
             else
@@ -47,11 +54,11 @@ namespace Ystari.StateManagement
 
         public void SetProperty<T>(string propertyName, T value)
         {
-            var property = List.FirstOrDefault(_ => _.Name == propertyName) as IPropertyState<T>;
+            var property = List.FirstOrDefault(_ => _.Key == propertyName) as IPropertyState<T>;
             if (property != null)
                 property.Value = value;
             else
-                List.Append(new PropertyState<T> { Name = propertyName, Value = value, HasChanged = false });
+                List.Append(new PropertyState<T> { Key = propertyName, Value = value, HasChanged = false });
         }
     }
 }
