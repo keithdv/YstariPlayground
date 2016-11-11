@@ -1,9 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using NUnit.Framework;
 using Ystari.StateManagement;
 
 namespace YstartTest
@@ -16,9 +11,9 @@ namespace YstartTest
         public void SerializePropertyState(string key, int value, bool hasChanged)
         {
             var state = new PropertyState<int> { Key = key, Value = value, HasChanged = hasChanged };
-            state.HasChanged.Should().Be(hasChanged);
+            Assert.That(state.HasChanged, Is.EqualTo(hasChanged));
             var result = Newtonsoft.Json.JsonConvert.SerializeObject(state);
-            result.Should().NotBeNullOrWhiteSpace();
+            Assert.That(result, Is.Not.Null.Or.Empty);
         }
 
         [TestCase("a", 123, false)]
@@ -28,10 +23,10 @@ namespace YstartTest
             var state = new PropertyState<int> { Key = key, Value = value, HasChanged = hasChanged };
             var result = Newtonsoft.Json.JsonConvert.SerializeObject(state);
             var final = Newtonsoft.Json.JsonConvert.DeserializeObject<PropertyState<int>>(result);
-            final.Should().NotBeNull();
-            final.Key.Should().Be(key);
-            final.Value.Should().Be(value);
-            final.HasChanged.Should().Be(hasChanged);
+            Assert.That(final, Is.Not.Null);
+            Assert.That(final.Key, Is.EqualTo(key));
+            Assert.That(final.Value, Is.EqualTo(value));
+            Assert.That(final.HasChanged, Is.EqualTo(hasChanged));
         }
     }
 }
