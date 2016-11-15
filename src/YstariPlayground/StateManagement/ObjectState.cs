@@ -5,17 +5,18 @@ using System;
 
 namespace Ystari.StateManagement
 {
-    public interface IObjectState : IEnumerable<IPropertyState>
+    public interface IObjectState
     {
         int GraphId { get; }
         bool HasChanged { get; }
+        List<IPropertyState> Properties { get; }
     }
 
     public class ObjectState : IObjectState
     {
         public ObjectState()
         {
-            List = new List<IPropertyState>();
+            Properties = new List<IPropertyState>();
         }
 
         [Newtonsoft.Json.JsonRequired]
@@ -26,26 +27,25 @@ namespace Ystari.StateManagement
         {
             get
             {
-                var hasChanged = List.FirstOrDefault(_ => _.HasChanged);
+                var hasChanged = Properties.FirstOrDefault(_ => _.HasChanged);
                 return (hasChanged != null);
             }
         }
 
-        private IEnumerable<IPropertyState> List { get; set; }
-
-        public IEnumerator<IPropertyState> GetEnumerator()
+        [Newtonsoft.Json.JsonIgnore]
+        List<IPropertyState> IObjectState.Properties
         {
-            return List.GetEnumerator();
+            get
+            {
+                return Properties;
+            }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return List.GetEnumerator();
-        }
+        public List<PropertyStatus> Properties { get; set; }
 
         public T GetProperty<T>(string name)
         {
-            var property = List.FirstOrDefault(_ => _.Key == name) as IPropertyState<T>;
+            var property = Properties.FirstOrDefault(_ => _.Key == name) as IPropertyState<T>;
             if (property != null)
                 return property.Value;
             else
@@ -54,11 +54,11 @@ namespace Ystari.StateManagement
 
         public void SetProperty<T>(string propertyName, T value)
         {
-            var property = List.FirstOrDefault(_ => _.Key == propertyName) as IPropertyState<T>;
+            var property = Properties.FirstOrDefault(_ => _.Key == propertyName) as IPropertyState<T>;
             if (property != null)
                 property.Value = value;
             else
-                List.Append(new PropertyState<T> { Key = propertyName, Value = value, HasChanged = false });
+                Properties.Append(new PropertyState<T> { Key = propertyName, Value = value, HasChanged = false });
         }
     }
 }
