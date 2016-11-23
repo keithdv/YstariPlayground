@@ -41,7 +41,7 @@ namespace Ystari.StateManagement
             }
         }
 
-        public List<PropertyStatus> Properties { get; set; }
+        public List<IPropertyState> Properties { get; set; }
 
         public T GetProperty<T>(string name)
         {

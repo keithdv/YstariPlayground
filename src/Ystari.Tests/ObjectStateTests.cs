@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Newtonsoft.Json;
+using NUnit.Framework;
 using Ystari.StateManagement;
 
 namespace Ystari.Tests
@@ -20,7 +21,9 @@ namespace Ystari.Tests
             var state = new ObjectState { GraphId = graphId };
             state.Properties.Add(new PropertyState<int> { Key = "a", Value = 987 });
             var result = Newtonsoft.Json.JsonConvert.SerializeObject(state);
-            var final = Newtonsoft.Json.JsonConvert.DeserializeObject<ObjectState>(result);
+            var jsonConverters = new JsonConverter[] { new PropertyStatusJSONConverter() };
+
+            var final = Newtonsoft.Json.JsonConvert.DeserializeObject<ObjectState>(result, jsonConverters);
             Assert.That(final.Properties.Count, Is.EqualTo(1));
         }
 

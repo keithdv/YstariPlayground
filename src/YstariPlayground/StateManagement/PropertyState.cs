@@ -36,6 +36,9 @@ namespace Ystari.StateManagement
         [Newtonsoft.Json.JsonRequired]
         public bool HasChanged { get; set; }
 
+        [Newtonsoft.Json.JsonRequired]
+        public System.Type PropertyType { get; private set; } = typeof(T);
+
         object IPropertyState.GetPropertyValue()
         {
             return Value;
